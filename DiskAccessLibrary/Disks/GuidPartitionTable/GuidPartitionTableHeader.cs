@@ -87,7 +87,7 @@ namespace DiskAccessLibrary
         {
             uint headerSize = LittleEndianConverter.ToUInt32(buffer, 12);
             byte[] temp = new byte[headerSize];
-            Array.Copy(buffer, temp, headerSize);
+            Array.Copy(buffer, temp, (int)headerSize);
             uint crc32 = 0;
             LittleEndianWriter.WriteUInt32(temp, 16, crc32);
             return Utilities.CRC32.Compute(temp);

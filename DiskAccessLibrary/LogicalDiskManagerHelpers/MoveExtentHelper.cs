@@ -89,7 +89,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
             resumeRecord.NewStartSector = (ulong)relocatedExtent.FirstSector;
             resumeRecord.BootRecordBackupSector = (ulong)backupSectorIndex;
 
-            long distanceLBA = (long)Math.Abs((double)resumeRecord.NewStartSector - resumeRecord.OldStartSector);
+            long distanceLBA = Math.Abs((long)resumeRecord.NewStartSector - (long)resumeRecord.OldStartSector);
             if (distanceLBA < MoveHelper.BufferedModeThresholdLBA)
             {
                 long backupBufferStartSector = DynamicDiskHelper.FindUnusedRegionInPrivateRegion(dynamicDisk, BackupBufferSizeLBA);

@@ -34,7 +34,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             }
             else
             {
-                long numberOfClusters = (long)Math.Ceiling((double)((ResidentAttributeRecord)m_record).Data.Length / volume.BytesPerCluster);
+                long numberOfClusters = (long)Math.Ceiling((decimal)((ResidentAttributeRecord)m_record).Data.Length / volume.BytesPerCluster);
                 long highestVCN = Math.Max(numberOfClusters - 1, 0);
                 if (clusterVCN < 0 || clusterVCN > highestVCN)
                 {
@@ -53,7 +53,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
                     bytesToRead = (int)(((ResidentAttributeRecord)m_record).Data.Length - offset);
                 }
                 byte[] data = new byte[bytesToRead];
-                Array.Copy(((ResidentAttributeRecord)m_record).Data, offset, data, 0, bytesToRead);
+#warning long array index
+                Array.Copy(((ResidentAttributeRecord)m_record).Data, (int)offset, data, 0, bytesToRead);
                 return data;
             }
         }
@@ -71,8 +72,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             }
             else
             {
-                int numberOfClusters = (int)Math.Ceiling((double)((ResidentAttributeRecord)m_record).Data.Length / volume.BytesPerCluster);
-                int count = (int)Math.Ceiling((double)data.Length / volume.BytesPerCluster);
+                int numberOfClusters = (int)Math.Ceiling((decimal)((ResidentAttributeRecord)m_record).Data.Length / volume.BytesPerCluster);
+                int count = (int)Math.Ceiling((decimal)data.Length / volume.BytesPerCluster);
                 long highestVCN = Math.Max(numberOfClusters - 1, 0);
                 if (clusterVCN < 0 || clusterVCN > highestVCN)
                 {
@@ -80,7 +81,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
                 }
 
                 long offset = clusterVCN * volume.BytesPerCluster;
-                Array.Copy(data, 0, ((ResidentAttributeRecord)m_record).Data, offset, data.Length);
+#warning long array index
+                Array.Copy(data, 0, ((ResidentAttributeRecord)m_record).Data, (int)offset, data.Length);
             }
         }
 

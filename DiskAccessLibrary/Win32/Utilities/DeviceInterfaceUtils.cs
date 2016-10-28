@@ -41,7 +41,7 @@ namespace DiskAccessLibrary
         public IntPtr Reserved;
     }
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct SP_DEVICE_INTERFACE_DETAIL_DATA
     {
         public uint cbSize;
@@ -54,7 +54,7 @@ namespace DiskAccessLibrary
         public static readonly Guid DiskClassGuid = new Guid("53F56307-B6BF-11D0-94F2-00A0C91EFB8B");
         const Int64 INVALID_HANDLE_VALUE = -1;
 
-        [DllImport("setupapi.dll", CharSet = CharSet.Auto)]
+        [DllImport("setupapi.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr SetupDiGetClassDevs(           // 1st form using a ClassGUID only, with null Enumerator
            ref Guid ClassGuid,
            IntPtr Enumerator,
@@ -68,7 +68,7 @@ namespace DiskAccessLibrary
              IntPtr DeviceInfoSet
         );
 
-        [DllImport(@"setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport(@"setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern Boolean SetupDiEnumDeviceInterfaces(
            IntPtr hDevInfo,
            ref SP_DEVINFO_DATA devInfo,
@@ -78,7 +78,7 @@ namespace DiskAccessLibrary
         );
 
         // Alternate signature if you do not care about SP_DEVINFO_DATA and wish to pass NULL (IntPtr.Zero)
-        [DllImport(@"setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport(@"setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern Boolean SetupDiEnumDeviceInterfaces(
            IntPtr hDevInfo,
            IntPtr devInfo,
@@ -87,7 +87,7 @@ namespace DiskAccessLibrary
            ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData
         );
 
-        [DllImport(@"setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport(@"setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern Boolean SetupDiGetDeviceInterfaceDetail(
            IntPtr hDevInfo,
            ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData,
@@ -98,7 +98,7 @@ namespace DiskAccessLibrary
         );
 
         // Alternate signature if you do not care about SP_DEVINFO_DATA and wish to pass NULL (IntPtr.Zero)
-        [DllImport(@"setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport(@"setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern Boolean SetupDiGetDeviceInterfaceDetail(
            IntPtr hDevInfo,
            ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData,
@@ -109,7 +109,7 @@ namespace DiskAccessLibrary
         );
 
         // Alternate signature - first call (we wish to pass IntPtr instead of reference to SP_DEVICE_INTERFACE_DETAIL_DATA)
-        [DllImport(@"setupapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport(@"setupapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern Boolean SetupDiGetDeviceInterfaceDetail(
            IntPtr hDevInfo,
            ref SP_DEVICE_INTERFACE_DATA deviceInterfaceData,

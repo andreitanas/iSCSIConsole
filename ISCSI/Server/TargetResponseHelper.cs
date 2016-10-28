@@ -29,7 +29,7 @@ namespace ISCSI.Server
 
                 // Store segment (we only execute the command after receiving all of its data)
                 byte[] commandDataBuffer = new byte[command.ExpectedDataTransferLength];
-                Array.Copy(command.Data, 0, commandDataBuffer, 0, command.DataSegmentLength);
+                Array.Copy(command.Data, 0, commandDataBuffer, 0, (int)command.DataSegmentLength);
                 
                 // Send R2T
                 ReadyToTransferPDU response = new ReadyToTransferPDU();
@@ -125,7 +125,7 @@ namespace ISCSI.Server
             uint totalLength = (uint)transfer.CommandDataBuffer.Length;
 
             // Store segment (we only execute the command after receiving all of its data)
-            Array.Copy(request.Data, 0, transfer.CommandDataBuffer, offset, request.DataSegmentLength);
+            Array.Copy(request.Data, 0, transfer.CommandDataBuffer, (int)offset, (int)request.DataSegmentLength);
             
             ISCSIServer.Log(String.Format("[{0}][GetSCSIDataOutResponsePDU] Buffer offset: {1}, Total length: {2}", connectionIdentifier, offset, totalLength));
 

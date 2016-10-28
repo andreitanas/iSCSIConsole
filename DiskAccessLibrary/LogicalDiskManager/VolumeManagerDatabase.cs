@@ -592,7 +592,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
 
             // The first VBLK entry is the subsequent entry to the VMDB, which located at (ConfigurationStartLBA + Item1Start)
             ulong firstSector = privateHeader.PrivateRegionStartLBA + tocBlock.ConfigStart + 1;  // we skip the VMDB
-            int sectorCount = (int)Math.Ceiling(databaseHeader.NumberOfVBlks * databaseHeader.BlockSize / (double)disk.BytesPerSector);
+            int sectorCount = (int)Math.Ceiling((long)databaseHeader.NumberOfVBlks * databaseHeader.BlockSize / (decimal)disk.BytesPerSector);
             byte[] databaseBytes = disk.ReadSectors((long)firstSector, sectorCount);
 
             // read all VBLK blocks:
@@ -601,7 +601,8 @@ namespace DiskAccessLibrary.LogicalDiskManager
             for (uint index = 0; index < databaseHeader.NumberOfVBlks - 4; index++)
             {
                 byte[] fragmentBytes = new byte[databaseHeader.BlockSize];
-                Array.Copy(databaseBytes, (long)index * databaseHeader.BlockSize, fragmentBytes, 0, databaseHeader.BlockSize);
+#warning long array index not supported
+                Array.Copy(databaseBytes, (int)(index * databaseHeader.BlockSize), fragmentBytes, 0, (int)databaseHeader.BlockSize);
                 DatabaseRecordFragment fragment = DatabaseRecordFragment.GetDatabaseRecordFragment(fragmentBytes);
 
                 if (fragment != null) // null fragment means VBLK is empty

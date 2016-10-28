@@ -64,7 +64,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             {
                 uint length = (uint)(AttributeRecord.AttributeRecordHeaderLength + 8 + Name.Length * 2 + Data.Length);
                 // Each record is aligned to 8-byte boundary
-                length = (uint)Math.Ceiling((double)length / 8) * 8;
+                length = (uint)Math.Ceiling((decimal)length / 8) * 8;
                 return length;
             }
         }

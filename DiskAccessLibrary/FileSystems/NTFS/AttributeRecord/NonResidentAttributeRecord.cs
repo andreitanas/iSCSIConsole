@@ -138,7 +138,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             foreach (KeyValuePair<long, int> run in sequence)
             {
                 byte[] clusters = volume.ReadClusters(run.Key, run.Value);
-                Array.Copy(clusters, 0, result, bytesRead, clusters.Length);
+#warning long array index
+                Array.Copy(clusters, 0, result, (int)bytesRead, clusters.Length);
                 bytesRead += clusters.Length;
             }
 
@@ -149,7 +150,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
                 if (bytesToUse < bytesRead)
                 {
                     byte[] resultTrimmed = new byte[bytesToUse];
-                    Array.Copy(result, resultTrimmed, bytesToUse);
+#warning long array index
+                    Array.Copy(result, resultTrimmed, (int)bytesToUse);
                     return resultTrimmed;
                 }
             }
@@ -164,7 +166,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
 
             if (data.Length % volume.BytesPerCluster > 0)
             {
-                int paddedLength = (int)Math.Ceiling((double)data.Length / volume.BytesPerCluster) * volume.BytesPerCluster;
+                int paddedLength = (int)Math.Ceiling((decimal)data.Length / volume.BytesPerCluster) * volume.BytesPerCluster;
                 // last cluster could be partial, we must zero-fill it before write
                 count = paddedLength / volume.BytesPerCluster;
                 lastClusterVcnToWrite = firstClusterVCN + count - 1;
@@ -197,7 +199,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             foreach (KeyValuePair<long, int> run in sequence)
             {
                 byte[] clusters = new byte[run.Value * volume.BytesPerCluster];
-                Array.Copy(data, bytesWritten, clusters, 0, clusters.Length);
+#warning long array index
+                Array.Copy(data, (int)bytesWritten, clusters, 0, clusters.Length);
                 volume.WriteClusters(run.Key, clusters);
                 bytesWritten += clusters.Length;
             }
@@ -208,7 +211,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             long firstClusterVcn = firstSectorIndex / volume.SectorsPerCluster;
             int sectorsToSkip = (int)(firstSectorIndex % volume.SectorsPerCluster);
 
-            int clustersToRead = (int)Math.Ceiling((double)(count + sectorsToSkip) / volume.SectorsPerCluster);
+            int clustersToRead = (int)Math.Ceiling((decimal)(count + sectorsToSkip) / volume.SectorsPerCluster);
 
             byte[] clusters = ReadDataClusters(volume, firstClusterVcn, clustersToRead);
             byte[] result = new byte[count * volume.BytesPerSector];
@@ -222,7 +225,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             long firstClusterVcn = firstSectorIndex / volume.SectorsPerCluster;
             int sectorsToSkip = (int)(firstSectorIndex % volume.SectorsPerCluster);
 
-            int clustersToRead = (int)Math.Ceiling((double)(count + sectorsToSkip) / volume.SectorsPerCluster);
+            int clustersToRead = (int)Math.Ceiling((decimal)(count + sectorsToSkip) / volume.SectorsPerCluster);
             byte[] clusters = ReadDataClusters(volume, firstClusterVcn, clustersToRead);
             Array.Copy(data, 0, clusters, sectorsToSkip * volume.BytesPerSector, data.Length);
             WriteDataClusters(volume, firstClusterVcn, clusters);
@@ -230,14 +233,14 @@ namespace DiskAccessLibrary.FileSystems.NTFS
 
         public void ExtendRecord(NTFSVolume volume, ulong additionalLength)
         {
-            long numberOfClusters = (long)Math.Ceiling((double)FileSize / volume.BytesPerCluster);
+            long numberOfClusters = (long)Math.Ceiling((decimal)FileSize / volume.BytesPerCluster);
             int freeBytesInLastCluster = (int)(numberOfClusters * volume.BytesPerCluster - (long)FileSize);
 
             if (additionalLength > (uint)freeBytesInLastCluster)
             {
                 ulong bytesToAllocate = additionalLength - (uint)freeBytesInLastCluster;
 
-                long clustersToAllocate = (long)Math.Ceiling((double)bytesToAllocate / volume.BytesPerCluster);
+                long clustersToAllocate = (long)Math.Ceiling((decimal)bytesToAllocate / volume.BytesPerCluster);
                 AllocateAdditionalClusters(volume, clustersToAllocate);
             }
 
@@ -286,7 +289,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
                 ushort mappingPairsOffset = (ushort)(HeaderLength + Name.Length * 2);
                 uint length = (uint)(mappingPairsOffset + dataRunSequenceLength);
                 // Each record is aligned to 8-byte boundary
-                length = (uint)Math.Ceiling((double)length / 8) * 8;
+                length = (uint)Math.Ceiling((decimal)length / 8) * 8;
                 return length;
             }
         }

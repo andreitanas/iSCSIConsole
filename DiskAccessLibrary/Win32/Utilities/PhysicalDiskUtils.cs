@@ -141,7 +141,7 @@ namespace DiskAccessLibrary
         private const uint DISK_ATTRIBUTE_OFFLINE = 0x1;
         private const uint DISK_ATTRIBUTE_READ_ONLY = 0x2;
 
-        [DllImport("kernel32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("kernel32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern bool DeviceIoControl(SafeHandle hDevice, uint dwIoControlCode, IntPtr lpInBuffer, uint nInBufferSize, IntPtr lpOutBuffer, uint nOutBufferSize, out uint lpBytesReturned, IntPtr lpOverlapped);
 
         public static bool IsMediaAccesible(SafeFileHandle hDevice)
@@ -254,20 +254,9 @@ namespace DiskAccessLibrary
 
         public static DISK_GEOMETRY GetDiskGeometryAndSize(SafeFileHandle hDevice, out long diskSize)
         {
-            if (Environment.OSVersion.Version >= new Version(5, 1, 0, 0))
-            {
-                // XP and upward
-                DISK_GEOMETRY_EX diskGeometryEx = GetDiskGeometryEx(hDevice);
-                diskSize = diskGeometryEx.DiskSize;
-                return diskGeometryEx.Geometry;
-            }
-            else
-            {
-                // Windows 2000
-                DISK_GEOMETRY diskGeometry = GetDiskGeometry(hDevice);
-                diskSize = GetPartitionSize(hDevice);
-                return diskGeometry;
-            }
+            DISK_GEOMETRY diskGeometry = GetDiskGeometry(hDevice);
+            diskSize = GetPartitionSize(hDevice);
+            return diskGeometry;
         }
 
         public static long GetDiskSize(SafeFileHandle hDevice)

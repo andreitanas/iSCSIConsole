@@ -16,8 +16,7 @@ namespace ISCSIConsole
 
         static void Main(string[] args)
         {
-            Console.WriteLine("iSCSI Console v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-            Console.WriteLine("Author: Tal Aloni (tal.aloni.il@gmail.com)");
+            Console.WriteLine("iSCSI Console v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version);
 
             MainLoop();
         }

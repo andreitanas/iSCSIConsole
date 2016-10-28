@@ -8,7 +8,7 @@ using System.IO;
 
 namespace System
 {
-    public class DatabaseNotFoundException : SystemException
+    public class DatabaseNotFoundException : Exception
     {
         public DatabaseNotFoundException() : base()
         {

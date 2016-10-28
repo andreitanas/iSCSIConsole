@@ -56,11 +56,11 @@ namespace DiskAccessLibrary
 
         public static DiskImage GetDiskImage(string path)
         {
-            if (path.EndsWith(".vhd", StringComparison.InvariantCultureIgnoreCase))
+            if (path.EndsWith(".vhd", StringComparison.OrdinalIgnoreCase))
             {
                 return new VirtualHardDisk(path);
             }
-            else if (path.EndsWith(".vmdk", StringComparison.InvariantCultureIgnoreCase))
+            else if (path.EndsWith(".vmdk", StringComparison.OrdinalIgnoreCase))
             {
                 return new VirtualMachineDisk(path);
             }

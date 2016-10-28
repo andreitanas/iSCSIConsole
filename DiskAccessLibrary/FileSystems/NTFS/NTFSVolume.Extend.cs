@@ -61,8 +61,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             if (currentNumberOfClusters % 64 > 0)
             {
                 ulong numberOfClustersToAllocate = additionalNumberOfClusters - (64 - (currentNumberOfClusters % 64));
-                ulong numberOfBytesToAllocate = (ulong)Math.Ceiling((double)numberOfClustersToAllocate / 8);
-                numberOfBytesToAllocate = (ulong)Math.Ceiling((double)numberOfBytesToAllocate / 8) * 8;
+                ulong numberOfBytesToAllocate = (ulong)Math.Ceiling((decimal)numberOfClustersToAllocate / 8);
+                numberOfBytesToAllocate = (ulong)Math.Ceiling((decimal)numberOfBytesToAllocate / 8) * 8;
 
                 // The last 8 bytes may contain extra bits that were previously set as used, and now have to be free. 
                 // We extend the file before reading the last 8 bytes of the bitmap, because it's possible that during the extension,
@@ -86,8 +86,8 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             }
             else
             {
-                ulong additionalNumberOfBytes = (ulong)Math.Ceiling((double)additionalNumberOfClusters / 8);
-                additionalNumberOfBytes = (ulong)Math.Ceiling((double)additionalNumberOfBytes / 8) * 8;
+                ulong additionalNumberOfBytes = (ulong)Math.Ceiling((decimal)additionalNumberOfClusters / 8);
+                additionalNumberOfBytes = (ulong)Math.Ceiling((decimal)additionalNumberOfBytes / 8) * 8;
 
                 bitmap = new byte[additionalNumberOfBytes];
                 nextClusterIndexInBitmap = additionalNumberOfClusters;

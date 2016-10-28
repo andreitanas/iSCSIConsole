@@ -43,7 +43,7 @@ namespace ISCSI
             Array.Copy(buffer, 20, OpCodeSpecific, 0, 28);
 
             Data = new byte[DataSegmentLength];
-            Array.Copy(buffer, 48, Data, 0, DataSegmentLength);
+            Array.Copy(buffer, 48, Data, 0, (int)DataSegmentLength);
         }
 
         virtual public byte[] GetBytes()
@@ -68,7 +68,7 @@ namespace ISCSI
             Array.Copy(LUNOrOpCodeSpecific, 0, buffer, 8, 8);
             BigEndianWriter.WriteUInt32(buffer, 16, InitiatorTaskTag);
             Array.Copy(OpCodeSpecific, 0, buffer, 20, 28);
-            Array.Copy(Data, 0, buffer, 48, DataSegmentLength);
+            Array.Copy(Data, 0, buffer, 48, (int)DataSegmentLength);
 
             return buffer;
         }
@@ -78,7 +78,7 @@ namespace ISCSI
             get
             {
                 int length = (int)(TotalAHSLength + DataSegmentLength + 48);
-                length = (int)Math.Ceiling((double)length / 4) * 4; // iSCSIPDUs are padded to the closest integer number of four byte words.
+                length = (int)Math.Ceiling((decimal)length / 4) * 4; // iSCSIPDUs are padded to the closest integer number of four byte words.
                 return length;
             }
         }
@@ -131,7 +131,7 @@ namespace ISCSI
 
             // Basic Header segment size is 48 bytes
             int length = totalAHSLength + dataSegmentLength + 48;
-            length = (int)Math.Ceiling((double)length / 4) * 4; // iSCSIPDUs are padded to the closest integer number of four byte words.
+            length = (int)Math.Ceiling((decimal)length / 4) * 4; // iSCSIPDUs are padded to the closest integer number of four byte words.
 
             return length;
         }

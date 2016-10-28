@@ -309,7 +309,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             // aligned to 8 byte boundary
             // Note: I had an issue with 4 byte boundary under Windows 7 using disk with 2048 bytes per sector.
             //       Windows used an 8 byte boundary.
-            ushort firstAttributeOffset = (ushort)(Math.Ceiling((double)(updateSequenceArrayOffset + updateSequenceArraySize * 2) / 8) * 8);
+            ushort firstAttributeOffset = (ushort)(Math.Ceiling((decimal)(updateSequenceArrayOffset + updateSequenceArraySize * 2) / 8) * 8);
             return firstAttributeOffset;
         }
 

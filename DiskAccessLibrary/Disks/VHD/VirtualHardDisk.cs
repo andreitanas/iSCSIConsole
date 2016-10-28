@@ -110,7 +110,7 @@ namespace DiskAccessLibrary
                     {
                         uint blockStartSector = m_blockAllocationTable.Entries[blockIndex];
                         // each data block has a sector bitmap preceding the data, the bitmap is padded to a 512-byte sector boundary.
-                        int blockBitmapSectorCount = (int)Math.Ceiling((double)sectorsInBlock / (this.BytesPerSector * 8));
+                        int blockBitmapSectorCount = (int)Math.Ceiling((decimal)sectorsInBlock / (this.BytesPerSector * 8));
                         // "All sectors within a block whose corresponding bits in the bitmap are zero must contain 512 bytes of zero on disk"
                         byte[] temp = m_file.ReadSectors(blockStartSector + blockBitmapSectorCount + sectorOffsetInBlock, sectorsToRead);
                         ByteWriter.WriteBytes(buffer, sectorOffset * this.BytesPerSector, temp);

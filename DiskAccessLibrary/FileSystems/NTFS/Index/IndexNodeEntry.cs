@@ -38,7 +38,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
             if (PointsToSubnode)
             {
                 // key is padded to align to 8 byte boundary
-                int keyLengthWithPadding = (int)Math.Ceiling((double)keyLength / 8) * 8;
+                int keyLengthWithPadding = (int)Math.Ceiling((decimal)keyLength / 8) * 8;
                 SubnodeVCN = (long)LittleEndianConverter.ToUInt64(buffer, offset + 0x10 + keyLengthWithPadding);
             }
             offset += recordLength;

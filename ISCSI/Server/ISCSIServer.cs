@@ -4,6 +4,7 @@
  * the GNU Lesser Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  */
+using DiskAccessLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -84,39 +85,32 @@ namespace ISCSI.Server
                 m_listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 m_listenerSocket.Bind(new IPEndPoint(IPAddress.Any, m_port));
                 m_listenerSocket.Listen(1000);
-                m_listenerSocket.BeginAccept(ConnectRequestCallback, m_listenerSocket);
+                // TODO: task cancellation
+                m_listenerSocket.AcceptAsync()
+                    .ContinueWith(t => {
+                        ConnectRequestCallback(t.Result);
+                    });
             }
         }
 
         // This method Accepts new connections
-        private void ConnectRequestCallback(IAsyncResult ar)
+        private void ConnectRequestCallback(Socket clientSocket)
         {
-            Socket listenerSocket = (Socket)ar.AsyncState;
-
-            Socket clientSocket;
-            try
-            {
-                clientSocket = listenerSocket.EndAccept(ar);
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            catch (SocketException)
-            {
-                return;
-            }
-
             Log("[OnConnectRequest] New connection has been accepted");
 
             StateObject state = new StateObject();
             state.ReceiveBuffer = new byte[StateObject.ReceiveBufferSize];
+            var receiveBuffer = new ArraySegment<byte>(state.ReceiveBuffer);
             // Disable the Nagle Algorithm for this tcp socket:
             clientSocket.NoDelay = true;
             state.ClientSocket = clientSocket;
             try
             {
-                clientSocket.BeginReceive(state.ReceiveBuffer, 0, StateObject.ReceiveBufferSize, 0, ReceiveCallback, state);
+                while (m_listening && clientSocket.Connected)
+                {
+                    var received = clientSocket.ReceiveAsync(receiveBuffer, SocketFlags.None).Result;
+                    ReceiveCallback(state, received);
+                }
             }
             catch (ObjectDisposedException)
             {
@@ -126,7 +120,6 @@ namespace ISCSI.Server
             {
                 Log("[OnConnectRequest] BeginReceive SocketException: " + ex.Message);
             }
-            m_listenerSocket.BeginAccept(ConnectRequestCallback, m_listenerSocket);
         }
 
         public void Stop()
@@ -139,38 +132,19 @@ namespace ISCSI.Server
                 m_logFile.Close();
                 m_logFile = null;
             }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
-        private void ReceiveCallback(IAsyncResult result)
+        private void ReceiveCallback(StateObject state, int numberOfBytesReceived)
         {
-            if (!m_listening)
-            {
-                return;
-            }
-
-            StateObject state = (StateObject)result.AsyncState;
             Socket clientSocket = state.ClientSocket;
-
-            int numberOfBytesReceived;
-            try
-            {
-                numberOfBytesReceived = clientSocket.EndReceive(result);
-            }
-            catch (ObjectDisposedException)
-            {
-                Log("[ReceiveCallback] EndReceive ObjectDisposedException");
-                return;
-            }
-            catch (SocketException ex)
-            {
-                Log("[ReceiveCallback] EndReceive SocketException: " + ex.Message);
-                return;
-            }
 
             if (numberOfBytesReceived == 0)
             {
                 // The other side has closed the connection
-                clientSocket.Close();
+                clientSocket.Dispose();
                 Log("[ReceiveCallback] The initiator has closed the connection");
                 lock (m_activeConnectionsLock)
                 {
@@ -192,22 +166,6 @@ namespace ISCSI.Server
 
             byte[] currentBuffer = ByteReader.ReadBytes(state.ReceiveBuffer, 0, numberOfBytesReceived);
             ProcessCurrentBuffer(currentBuffer, state);
-
-            if (clientSocket.Connected)
-            {
-                try
-                {
-                    clientSocket.BeginReceive(state.ReceiveBuffer, 0, StateObject.ReceiveBufferSize, 0, ReceiveCallback, state);
-                }
-                catch (ObjectDisposedException)
-                {
-                    Log("[ReceiveCallback] BeginReceive ObjectDisposedException");
-                }
-                catch (SocketException ex)
-                {
-                    Log("[ReceiveCallback] BeginReceive SocketException: " + ex.Message);
-                }
-            }
         }
 
         public void ProcessCurrentBuffer(byte[] currentBuffer, StateObject state)
@@ -377,7 +335,7 @@ namespace ISCSI.Server
                 // immediately terminate the connection on which the PDU was received.
                 // Once the Login phase has started, if the target receives any PDU except a Login request,
                 // it MUST send a Login reject (with Status "invalid during login") and then disconnect.
-                clientSocket.Close();
+                clientSocket.Dispose();
             }
             else // Logged in
             {
@@ -407,7 +365,7 @@ namespace ISCSI.Server
                     LogoutRequestPDU request = (LogoutRequestPDU)pdu;
                     LogoutResponsePDU response = ServerResponseHelper.GetLogoutResponsePDU(request);
                     TrySendPDU(state, response);
-                    clientSocket.Close(); // We can close the connection now
+                    clientSocket.Dispose(); // We can close the connection now
                 }
                 else if (state.SessionParameters.IsDiscovery)
                 {
@@ -513,6 +471,7 @@ namespace ISCSI.Server
 
         public static void Log(string message)
         {
+            Console.WriteLine(message);
             if (m_logFile != null)
             {
                 lock (m_logSyncLock)

@@ -135,7 +135,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
             foreach (DatabaseRecordFragment fragment in recordFragments)
             { 
                 int length = Math.Min(leftToCopy, fragment.Data.Length);
-                Array.Copy(fragment.Data, 0, result, recordLength - leftToCopy, length);
+                Array.Copy(fragment.Data, 0, result, (int)recordLength - leftToCopy, length);
                 leftToCopy -= length;
             }
             return result;
@@ -192,7 +192,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
         private static List<DatabaseRecordFragment> GetUpdatedFragments(int blockSize, byte[] data)
         {
             int fragmentDataLength = blockSize - DatabaseRecordFragment.HeaderLength;
-            int fragmentCount = (int)Math.Ceiling((double)data.Length / fragmentDataLength);
+            int fragmentCount = (int)Math.Ceiling((decimal)data.Length / fragmentDataLength);
 
             List<DatabaseRecordFragment> result = new List<DatabaseRecordFragment>();
             int dataOffset = 0;

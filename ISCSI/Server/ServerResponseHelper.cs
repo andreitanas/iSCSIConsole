@@ -156,7 +156,7 @@ namespace ISCSI.Server
         {
             for (int index = 0; index < targets.Count; index++)
             {
-                if (String.Equals(targets[index].TargetName, targetName, StringComparison.InvariantCultureIgnoreCase))
+                if (String.Equals(targets[index].TargetName, targetName, StringComparison.OrdinalIgnoreCase))
                 {
                     return index;
                 }

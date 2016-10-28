@@ -35,53 +35,53 @@ namespace DiskAccessLibrary.VMDK
 
             foreach (string line in lines)
             {
-                if (line.StartsWith("version", StringComparison.InvariantCultureIgnoreCase))
+                if (line.StartsWith("version", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     Version = Conversion.ToInt32(value);
                 }
-                else if (line.StartsWith("CID", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("CID", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     ContentID = UInt32.Parse(value, System.Globalization.NumberStyles.HexNumber);
                 }
-                else if (line.StartsWith("ParentCID", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("ParentCID", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     ParentContentID = UInt32.Parse(value, System.Globalization.NumberStyles.HexNumber);
                 }
-                else if (line.StartsWith("createType", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("createType", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     value = QuotedStringUtils.Unquote(value);
                     DiskType = GetFromString(value);
                 }
-                else if (line.StartsWith("RW", StringComparison.InvariantCultureIgnoreCase) ||
-                         line.StartsWith("RDONLY", StringComparison.InvariantCultureIgnoreCase) ||
-                         line.StartsWith("NOACCESS", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("RW", StringComparison.OrdinalIgnoreCase) ||
+                         line.StartsWith("RDONLY", StringComparison.OrdinalIgnoreCase) ||
+                         line.StartsWith("NOACCESS", StringComparison.OrdinalIgnoreCase))
                 {
                     VirtualMachineDiskExtentEntry entry = VirtualMachineDiskExtentEntry.ParseEntry(line);
                     ExtentEntries.Add(entry);
                 }
-                else if (line.StartsWith("ddb.adapterType", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("ddb.adapterType", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     value = QuotedStringUtils.Unquote(value);
                     Adapter = value;
                 }
-                else if (line.StartsWith("ddb.geometry.sectors", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("ddb.geometry.sectors", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     value = QuotedStringUtils.Unquote(value);
                     SectorsPerTrack = Conversion.ToInt32(value);
                 }
-                else if (line.StartsWith("ddb.geometry.heads", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("ddb.geometry.heads", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     value = QuotedStringUtils.Unquote(value);
                     TracksPerCylinder = Conversion.ToInt32(value);
                 }
-                else if (line.StartsWith("ddb.geometry.cylinders", StringComparison.InvariantCultureIgnoreCase))
+                else if (line.StartsWith("ddb.geometry.cylinders", StringComparison.OrdinalIgnoreCase))
                 {
                     string value = line.Substring(line.IndexOf('=') + 1).Trim();
                     value = QuotedStringUtils.Unquote(value);
@@ -97,9 +97,9 @@ namespace DiskAccessLibrary.VMDK
             for (int index = 0; index < lines.Count; index++)
             {
                 string line = lines[index];
-                if (line.StartsWith("RW", StringComparison.InvariantCultureIgnoreCase) ||
-                    line.StartsWith("RDONLY", StringComparison.InvariantCultureIgnoreCase) ||
-                    line.StartsWith("NOACCESS", StringComparison.InvariantCultureIgnoreCase))
+                if (line.StartsWith("RW", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("RDONLY", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("NOACCESS", StringComparison.OrdinalIgnoreCase))
                 {
                     if (startIndex == -1)
                     {

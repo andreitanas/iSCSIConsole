@@ -37,7 +37,7 @@ namespace DiskAccessLibrary
         private static List<GuidPartitionEntry> ReadEntriesFromDisk(Disk disk, GuidPartitionTableHeader header)
         {
             int bufferLength = (int)(header.NumberOfPartitionEntries * header.SizeOfPartitionEntry);
-            int sectorsToRead = (int)Math.Ceiling((double)bufferLength / disk.BytesPerSector);
+            int sectorsToRead = (int)Math.Ceiling((decimal)bufferLength / disk.BytesPerSector);
             byte[] buffer = disk.ReadSectors((long)header.PartitionEntriesLBA, sectorsToRead);
             if (buffer.Length > bufferLength)
             {
@@ -67,7 +67,7 @@ namespace DiskAccessLibrary
 
         public static uint ComputePartitionArrayCRC32(Disk disk, GuidPartitionTableHeader header)
         {
-            int sectorsToRead = (int)Math.Ceiling((double)header.NumberOfPartitionEntries * header.SizeOfPartitionEntry / disk.BytesPerSector);
+            int sectorsToRead = (int)Math.Ceiling((decimal)header.NumberOfPartitionEntries * header.SizeOfPartitionEntry / disk.BytesPerSector);
             byte[] buffer = disk.ReadSectors((long)header.PartitionEntriesLBA, sectorsToRead);
             return CRC32.Compute(buffer);
         }

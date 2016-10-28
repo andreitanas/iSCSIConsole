@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Utilities;
 
 namespace ISCSI.Client
@@ -67,8 +68,25 @@ namespace ISCSI.Client
                     return false;
                 }
                 StateObject state = new StateObject();
-                m_currentAsyncResult = m_clientSocket.BeginReceive(state.ReceiveBuffer, 0, state.ReceiveBuffer.Length, SocketFlags.None, new AsyncCallback(OnClientSocketReceive), state);
                 m_isConnected = true;
+                while (m_isConnected && m_clientSocket.Connected)
+                {
+                    try
+                    {
+                        var received = m_clientSocket.ReceiveAsync(state.ReceiveBuffer, SocketFlags.None).Result;
+                        OnClientSocketReceive(state, received);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        m_isConnected = false;
+                        Log("[ReceiveCallback] BeginReceive ObjectDisposedException");
+                    }
+                    catch (SocketException ex)
+                    {
+                        m_isConnected = false;
+                        Log("[ReceiveCallback] BeginReceive SocketException: " + ex.Message);
+                    }
+                }
             }
             return m_isConnected;
         }
@@ -77,7 +95,7 @@ namespace ISCSI.Client
         {
             if (m_isConnected)
             {
-                m_clientSocket.Disconnect(false);
+                m_clientSocket.Dispose();
                 m_isConnected = false;
             }
         }
@@ -237,7 +255,7 @@ namespace ISCSI.Client
             byte[] result = new byte[sectorCount * bytesPerSector];
             while (data != null)
             {
-                Array.Copy(data.Data, 0, result, data.BufferOffset, data.DataSegmentLength);
+                Array.Copy(data.Data, 0, result, (int)data.BufferOffset, (int)data.DataSegmentLength);
                 if (data.StatusPresent)
                 {
                     break;
@@ -295,61 +313,16 @@ namespace ISCSI.Client
             return response != null;
         }
 
-        private void OnClientSocketReceive(IAsyncResult ar)
+        private void OnClientSocketReceive(StateObject state, int numberOfBytesReceived)
         {
-            if (ar != m_currentAsyncResult)
-            {
-                // We ignore calls for old sockets which we no longer use
-                // See: http://rajputyh.blogspot.co.il/2010/04/solve-exception-message-iasyncresult.html
-                return;
-            }
-
-            StateObject state = (StateObject)ar.AsyncState;
-
-            if (!m_clientSocket.Connected)
-            {
-                return;
-            }
-
-            int numberOfBytesReceived = 0;
-            try
-            {
-                numberOfBytesReceived = m_clientSocket.EndReceive(ar);
-            }
-            catch (ObjectDisposedException)
-            {
-                Log("[ReceiveCallback] EndReceive ObjectDisposedException");
-                return;
-            }
-            catch (SocketException ex)
-            {
-                Log("[ReceiveCallback] EndReceive SocketException: " + ex.Message);
-                return;
-            }
-
             if (numberOfBytesReceived == 0)
             {
                 m_isConnected = false;
             }
             else
             {
-                byte[] currentBuffer = ByteReader.ReadBytes(state.ReceiveBuffer, 0, numberOfBytesReceived);
+                byte[] currentBuffer = ByteReader.ReadBytes(state.ReceiveBuffer.Array, 0, numberOfBytesReceived);
                 ProcessCurrentBuffer(currentBuffer, state);
-
-                try
-                {
-                    m_currentAsyncResult = m_clientSocket.BeginReceive(state.ReceiveBuffer, 0, state.ReceiveBuffer.Length, SocketFlags.None, new AsyncCallback(OnClientSocketReceive), state);
-                }
-                catch (ObjectDisposedException)
-                {
-                    m_isConnected = false;
-                    Log("[ReceiveCallback] BeginReceive ObjectDisposedException");
-                }
-                catch (SocketException ex)
-                {
-                    m_isConnected = false;
-                    Log("[ReceiveCallback] BeginReceive SocketException: " + ex.Message);
-                }
             }
         }
 
@@ -473,7 +446,7 @@ namespace ISCSI.Client
                         }
                     }
                 }
-                Thread.Sleep(100);
+                Task.Delay(100).Wait();
                 timespan += 100;
             }
             return null;

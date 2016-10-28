@@ -11,6 +11,7 @@ using DiskAccessLibrary;
 using DiskAccessLibrary.LogicalDiskManager;
 using ISCSI.Server;
 using Utilities;
+using System.Runtime.InteropServices;
 
 namespace ISCSIConsole
 {
@@ -77,7 +78,8 @@ namespace ISCSIConsole
                             PhysicalDisk disk = (PhysicalDisk)m_selectedDisk;
                             if (!isAttachmentReadOnly)
                             {
-                                if (Environment.OSVersion.Version.Major >= 6)
+                                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                //if (Environment.OSVersion.Version.Major >= 6)
                                 {
                                     bool isDiskReadOnly;
                                     bool isOnline = disk.GetOnlineStatus(out isDiskReadOnly);
@@ -120,7 +122,8 @@ namespace ISCSIConsole
                             bool isAttachmentReadOnly = parameters.ContainsKey("readonly");
                             if (!isAttachmentReadOnly)
                             {
-                                if (Environment.OSVersion.Version.Major >= 6)
+                                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                //if (Environment.OSVersion.Version.Major >= 6)
                                 {
                                     if (m_selectedVolume is DynamicVolume)
                                     {

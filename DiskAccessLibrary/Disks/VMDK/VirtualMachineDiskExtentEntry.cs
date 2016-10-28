@@ -48,12 +48,12 @@ namespace DiskAccessLibrary.VMDK
         {
             VirtualMachineDiskExtentEntry entry = new VirtualMachineDiskExtentEntry();
             List<string> parts = QuotedStringUtils.SplitIgnoreQuotedSeparators(line, ' ');
-            if (String.Equals(parts[0], "RW", StringComparison.InvariantCultureIgnoreCase))
+            if (String.Equals(parts[0], "RW", StringComparison.OrdinalIgnoreCase))
             {
                 entry.WriteAccess = true;
                 entry.ReadAccess = true;
             }
-            else if (String.Equals(parts[0], "RDONLY", StringComparison.InvariantCultureIgnoreCase))
+            else if (String.Equals(parts[0], "RDONLY", StringComparison.OrdinalIgnoreCase))
             {
                 entry.ReadAccess = true;
             }

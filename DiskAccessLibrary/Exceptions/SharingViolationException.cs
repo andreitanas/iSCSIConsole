@@ -6,7 +6,7 @@
  */
 namespace System
 {
-    public class SharingViolationException : SystemException
+    public class SharingViolationException : Exception
     {
         public SharingViolationException() : base()
         {

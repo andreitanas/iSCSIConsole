@@ -24,7 +24,7 @@ namespace DiskAccessLibrary
 
     public class HandleUtils
     {
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, SafeFileHandle hTemplateFile);
 
         private const uint GENERIC_READ = 0x80000000;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Runtime.InteropServices;
 using DiskAccessLibrary;
 using DiskAccessLibrary.LogicalDiskManager;
 using Utilities;
@@ -22,7 +23,8 @@ namespace ISCSIConsole
                             {
                                 if (m_selectedDisk is PhysicalDisk)
                                 {
-                                    if (Environment.OSVersion.Version.Major >= 6)
+                                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                    //if (Environment.OSVersion.Version.Major >= 6)
                                     {
                                         bool isOnline = ((PhysicalDisk)m_selectedDisk).GetOnlineStatus();
                                         if (isOnline)
@@ -79,7 +81,8 @@ namespace ISCSIConsole
                             {
                                 if (m_selectedDisk is PhysicalDisk)
                                 {
-                                    if (Environment.OSVersion.Version.Major >= 6)
+                                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                    //if (Environment.OSVersion.Version.Major >= 6)
                                     {
                                         bool isOnline = ((PhysicalDisk)m_selectedDisk).GetOnlineStatus();
                                         if (!isOnline)

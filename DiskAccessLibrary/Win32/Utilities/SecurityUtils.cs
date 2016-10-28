@@ -40,18 +40,18 @@ namespace DiskAccessLibrary
             public int Attributes;
         }
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Auto)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
         public static extern int OpenProcessToken(int ProcessHandle, int DesiredAccess,
         ref int tokenhandle);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern int GetCurrentProcess();
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Auto)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
         public static extern int LookupPrivilegeValue(string lpsystemname, string lpname,
         [MarshalAs(UnmanagedType.Struct)] ref LUID lpLuid);
 
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern int AdjustTokenPrivileges(int tokenhandle, int disableprivs, [MarshalAs(UnmanagedType.Struct)]ref TOKEN_PRIVILEGES Newstate,
             int bufferlength, int PreivousState, int Returnlength);
 

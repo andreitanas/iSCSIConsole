@@ -16,7 +16,7 @@ namespace DiskAccessLibrary
     {
         public static DiskExtent GetAlignedDiskExtent(DiskExtent extent, long alignInSectors)
         {
-            long alignedStartSector = (long)Math.Ceiling((double)extent.FirstSector / alignInSectors) * alignInSectors;
+            long alignedStartSector = (long)Math.Ceiling((decimal)extent.FirstSector / alignInSectors) * alignInSectors;
             long lossDueToAlignment = (alignedStartSector - extent.FirstSector) * extent.BytesPerSector;
             return new DiskExtent(extent.Disk, alignedStartSector, extent.Size - lossDueToAlignment);
         }

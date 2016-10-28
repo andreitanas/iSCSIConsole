@@ -8,7 +8,7 @@ using System.IO;
 
 namespace System
 {
-    public class MissingDatabaseRecordException : SystemException
+    public class MissingDatabaseRecordException : Exception
     {
         public MissingDatabaseRecordException() : base()
         {

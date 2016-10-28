@@ -32,7 +32,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
         {
             long clusterVCN = (long)offset / m_volume.BytesPerCluster;
             int offsetInCluster = (int)(offset % (uint)m_volume.BytesPerCluster);
-            int clusterCount = (int)Math.Ceiling((double)(offsetInCluster + length) / m_volume.BytesPerCluster);
+            int clusterCount = (int)Math.Ceiling((decimal)(offsetInCluster + length) / m_volume.BytesPerCluster);
             byte[] clustersBytes = m_fileRecord.DataRecord.ReadDataClusters(m_volume, clusterVCN, clusterCount);
             int readLength = clustersBytes.Length - offsetInCluster;
             if (readLength < length)

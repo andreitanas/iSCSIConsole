@@ -382,7 +382,7 @@ namespace DiskAccessLibrary.FileSystems.NTFS
         {
             foreach (KeyValuePair<MftSegmentReference, FileNameRecord> record in records)
             {
-                if (String.Equals(record.Value.FileName, name, StringComparison.InvariantCultureIgnoreCase))
+                if (String.Equals(record.Value.FileName, name, StringComparison.OrdinalIgnoreCase))
                 {
                     return record;
                 }

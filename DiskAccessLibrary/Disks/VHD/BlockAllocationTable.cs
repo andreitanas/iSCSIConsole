@@ -40,7 +40,7 @@ namespace DiskAccessLibrary.VHD
         public byte[] GetBytes()
         {
             // The BAT is always extended to a sector boundary
-            int bufferLength = (int)Math.Ceiling((double)Entries.Length * 4 / VirtualHardDisk.BytesPerDiskImageSector) * VirtualHardDisk.BytesPerDiskImageSector;
+            int bufferLength = (int)Math.Ceiling((decimal)Entries.Length * 4 / VirtualHardDisk.BytesPerDiskImageSector) * VirtualHardDisk.BytesPerDiskImageSector;
             byte[] buffer = new byte[bufferLength];
             for (int index = 0; index < Entries.Length; index++)
             {
@@ -59,7 +59,7 @@ namespace DiskAccessLibrary.VHD
         {
             uint maxTableEntries = dynamicHeader.MaxTableEntries;
             long sectorIndex = (long)(dynamicHeader.TableOffset / VirtualHardDisk.BytesPerDiskImageSector);
-            int sectorCount = (int)Math.Ceiling((double)maxTableEntries * 4 / VirtualHardDisk.BytesPerDiskImageSector);
+            int sectorCount = (int)Math.Ceiling((decimal)maxTableEntries * 4 / VirtualHardDisk.BytesPerDiskImageSector);
             byte[] buffer = new RawDiskImage(path).ReadSectors(sectorIndex, sectorCount);
             return new BlockAllocationTable(buffer, maxTableEntries);
         }

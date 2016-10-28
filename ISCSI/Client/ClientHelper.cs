@@ -319,7 +319,7 @@ namespace ISCSI.Client
             List<SCSIDataOutPDU> result = new List<SCSIDataOutPDU>();
             // if readyToTransfer.DesiredDataTransferLength <= connection.TargetMaxRecvDataSegmentLength we must send multiple Data-Out PDUs
             // We assume DesiredDataTransferLength does not violate session.MaxBurstLength
-            int numberOfChunks = (int)Math.Ceiling((double)readyToTransfer.DesiredDataTransferLength / connection.TargetMaxRecvDataSegmentLength);
+            int numberOfChunks = (int)Math.Ceiling((decimal)readyToTransfer.DesiredDataTransferLength / connection.TargetMaxRecvDataSegmentLength);
             for (int chunkIndex = 0; chunkIndex < numberOfChunks; chunkIndex++)
             {
                 int chunkOffset = chunkIndex * connection.TargetMaxRecvDataSegmentLength;

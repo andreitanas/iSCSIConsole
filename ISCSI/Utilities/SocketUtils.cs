@@ -26,7 +26,7 @@ namespace Utilities
                     socket.Shutdown(SocketShutdown.Both);
                     try
                     {
-                        socket.Disconnect(false);
+                        socket.Dispose();
                     }
                     catch (ObjectDisposedException)
                     {
@@ -35,10 +35,7 @@ namespace Utilities
                     catch (SocketException)
                     { }
                 }
-                socket.Close();
                 socket = null;
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
             }
         }
     }

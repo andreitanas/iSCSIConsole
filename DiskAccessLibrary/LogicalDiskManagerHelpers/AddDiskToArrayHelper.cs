@@ -107,7 +107,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
                 if (numberOfStripesToTransfer % (newColumnCount - 1) > 0)
                 {
                     // this is the last segment and we need to zero-fill it for the write:
-                    int numberOfStripesToWrite = (int)Math.Ceiling((double)numberOfStripesToTransfer / (newColumnCount - 1)) * (newColumnCount - 1);
+                    int numberOfStripesToWrite = (int)Math.Ceiling((decimal)numberOfStripesToTransfer / (newColumnCount - 1)) * (newColumnCount - 1);
                     byte[] temp = new byte[numberOfStripesToWrite * volume.BytesPerStripe];
                     Array.Copy(segmentData, temp, segmentData.Length);
                     segmentData = temp;
@@ -173,7 +173,8 @@ namespace DiskAccessLibrary.LogicalDiskManager
                     int columnIndex = (parityColumnIndex + 1 + stripeVerticalIndex) % newArray.Count;
 
                     long stripeOffsetInData = (stripeOffsetInColumn * (newArray.Count - 1) + stripeVerticalIndex) * bytesPerStripe;
-                    Array.Copy(data, stripeOffsetInData, columnData[columnIndex], stripeOffsetInColumn * bytesPerStripe, bytesPerStripe);
+#warning long array index
+                    Array.Copy(data, (int)stripeOffsetInData, columnData[columnIndex], stripeOffsetInColumn * bytesPerStripe, bytesPerStripe);
 
                     parityData = Raid5Volume.XOR(parityData, columnData[columnIndex], stripeOffsetInColumn * bytesPerStripe, bytesPerStripe);
                 }

@@ -433,7 +433,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
                 bool isNameAvailable = true;
                 foreach (VolumeRecord volumeRecord in volumeRecords)
                 {
-                    if (volumeRecord.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                    if (volumeRecord.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     {
                         isNameAvailable = false;
                         break;
@@ -457,7 +457,7 @@ namespace DiskAccessLibrary.LogicalDiskManager
                 bool isNameAvailable = true;
                 foreach (ExtentRecord extentRecord in extentRecords)
                 {
-                    if (extentRecord.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                    if (extentRecord.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     {
                         isNameAvailable = false;
                         break;
