@@ -17,9 +17,17 @@ namespace DiskAccessLibrary
         const FileOptions FILE_FLAG_NO_BUFFERING = (FileOptions)0x20000000;
         private bool m_isExclusiveLock;
         private FileStream m_stream;
+        private FileInfo info;
+        private int bytesPerSector;
 
         public RawDiskImage(string rawDiskImagePath) : base(rawDiskImagePath)
         {
+            this.bytesPerSector = DEFAULT_BYTES_PER_SECTOR;
+        }
+
+        public RawDiskImage(string rawDiskImagePath, int bytesPerSector) : base(rawDiskImagePath)
+        {
+            this.bytesPerSector = bytesPerSector;
         }
 
         public override bool ExclusiveLock()
@@ -123,18 +131,7 @@ namespace DiskAccessLibrary
         {
             get
             {
-                FileInfo info = new FileInfo(this.Path);
-                string[] components = info.Name.Split('.');
-                if (components.Length >= 3) // file.512.img
-                {
-                    string bytesPerSectorString = components[components.Length - 2];
-                    int bytesPerSector = Conversion.ToInt32(bytesPerSectorString, BytesPerDiskImageSector);
-                    return bytesPerSector;
-                }
-                else
-                {
-                    return BytesPerDiskImageSector;
-                }
+                return bytesPerSector;
             }
         }
 
@@ -142,7 +139,7 @@ namespace DiskAccessLibrary
         {
             get
             {
-                FileInfo info = new FileInfo(this.Path);
+                info = info ?? new FileInfo(this.Path);
                 return info.Length;
             }
         }

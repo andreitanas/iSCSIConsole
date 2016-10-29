@@ -136,7 +136,7 @@ namespace DiskAccessLibrary
         {
             get
             {
-                return DiskImage.BytesPerDiskImageSector;
+                return DiskImage.DEFAULT_BYTES_PER_SECTOR;
             }
         }
 

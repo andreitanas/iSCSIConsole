@@ -15,7 +15,7 @@ namespace DiskAccessLibrary
     public abstract partial class DiskImage : Disk
     {
         // There is no way to specify sector size for IMG/VHD/VMDK.
-        public const int BytesPerDiskImageSector = 512;
+        public const int DEFAULT_BYTES_PER_SECTOR = 512;
 
         private string m_path;
 
@@ -42,7 +42,7 @@ namespace DiskAccessLibrary
         {
             get
             {
-                return BytesPerDiskImageSector;
+                return DEFAULT_BYTES_PER_SECTOR;
             }
         }
 

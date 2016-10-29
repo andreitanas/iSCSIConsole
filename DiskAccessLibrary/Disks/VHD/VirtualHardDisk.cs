@@ -269,7 +269,7 @@ namespace DiskAccessLibrary
             footer.OriginalSize = (ulong)length;
             footer.CurrentSize = (ulong)length;
             footer.SetCurrentTimeStamp();
-            footer.SetDiskGeometry((ulong)length / DiskImage.BytesPerDiskImageSector);
+            footer.SetDiskGeometry((ulong)length / DiskImage.DEFAULT_BYTES_PER_SECTOR);
             stream.Seek(length, SeekOrigin.Begin);
             stream.Write(footer.GetBytes(), 0, VHDFooter.Length);
             stream.Close();

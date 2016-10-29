@@ -45,6 +45,7 @@ namespace ISCSIConsole
             var targets = new List<ISCSITarget>();
             foreach (var targetConfig in config.Targets)
             {
+                Console.WriteLine("Adding target '{0}'", targetConfig.Name);
                 var disks = new List<Disk>();
 
                 foreach (var diskConfig in targetConfig.Disks)
@@ -53,10 +54,21 @@ namespace ISCSIConsole
                     switch (diskConfig.Kind)
                     {
                         case DiskKind.Raw:
+                            Console.WriteLine("  Adding Raw Disk target '{0}'. Filename: '{1}'",
+                                diskConfig.Name, ((JObject)diskConfig.Parameters)["File"].Value<string>());
                             disk = DiskImage.GetDiskImage(((JObject)diskConfig.Parameters)["File"].Value<string>());
                             break;
                         default:
                             throw new NotImplementedException();
+                    }
+                    if (disk is DiskImage)
+                    {
+                        bool isLocked = ((DiskImage)disk).ExclusiveLock();
+                        if (!isLocked)
+                        {
+                            Console.WriteLine("Error: Cannot lock the disk image for exclusive access");
+                            return;
+                        }
                     }
                     disks.Add(disk);
                 }
