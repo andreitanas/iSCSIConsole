@@ -3,7 +3,7 @@
 
     "Logging": {
         "File": null,
-        "Level": "Warning",
+        "Level": "Information",
         "LogToConsole": true
     },
 
@@ -15,7 +15,7 @@
                     "Name": "rawdisk",
                     "Kind": "Raw",
                     "Parameters": {
-                        "File": "./disk.img"
+                        "File": "/home/andrei/tmp/iscsi"
                     }
                 }
             ]
