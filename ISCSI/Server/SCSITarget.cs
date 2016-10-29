@@ -33,7 +33,7 @@ namespace ISCSI.Server
             }
             catch(UnsupportedSCSICommandException)
             {
-                ISCSIServer.Log("[ExecuteCommand] Unsupported SCSI Command (0x{0})", commandBytes[0].ToString("X"));
+                ISCSIServer.Log(LogLevel.Warning, "[ExecuteCommand] Unsupported SCSI Command (0x{0})", commandBytes[0].ToString("X"));
                 response = SCSITarget.FormatSenseData(SenseDataParameter.GetIllegalRequestUnsupportedCommandCodeSenseData());
                 return SCSIStatusCodeName.CheckCondition;
             }
@@ -43,7 +43,7 @@ namespace ISCSI.Server
 
         public SCSIStatusCodeName ExecuteCommand(SCSICommandDescriptorBlock command, LUNStructure lun, byte[] data, out byte[] response)
         {
-            ISCSIServer.Log("[ExecuteCommand] {0}", command.OpCode);
+            ISCSIServer.Log(LogLevel.Debug, "[ExecuteCommand] {0}", command.OpCode);
             if (command.OpCode == SCSIOpCodeName.TestUnitReady)
             {
                 return TestUnitReady(lun, out response);
@@ -105,7 +105,7 @@ namespace ISCSI.Server
             }
             else
             {
-                ISCSIServer.Log("[ExecuteCommand] Unsupported SCSI Command (0x{0})", command.OpCode.ToString("X"));
+                ISCSIServer.Log(LogLevel.Warning, "[ExecuteCommand] Unsupported SCSI Command (0x{0})", command.OpCode.ToString("X"));
                 response = FormatSenseData(SenseDataParameter.GetIllegalRequestUnsupportedCommandCodeSenseData());
                 return SCSIStatusCodeName.CheckCondition;
             }
@@ -139,14 +139,14 @@ namespace ISCSI.Server
                 }
                 else
                 {
-                    ISCSIServer.Log("[Inquiry] Invalid request");
+                    ISCSIServer.Log(LogLevel.Warning, "[Inquiry] Invalid request");
                     response = FormatSenseData(SenseDataParameter.GetIllegalRequestInvalidFieldInCDBSenseData());
                     return SCSIStatusCodeName.CheckCondition;
                 }
             }
             else
             {
-                ISCSIServer.Log("[Inquiry] Page code: 0x{0}", command.PageCode.ToString("X"));
+                ISCSIServer.Log(LogLevel.Debug, "[Inquiry] Page code: 0x{0}", command.PageCode.ToString("X"));
                 switch (command.PageCode)
                 {
                     case VitalProductDataPageName.SupportedVPDPages:
@@ -202,7 +202,7 @@ namespace ISCSI.Server
                     default:
                         {
                             response = FormatSenseData(SenseDataParameter.GetIllegalRequestInvalidFieldInCDBSenseData());
-                            ISCSIServer.Log("[Inquiry] Unsupported VPD Page request (0x{0})", command.PageCode.ToString("X"));
+                            ISCSIServer.Log(LogLevel.Warning, "[Inquiry] Unsupported VPD Page request (0x{0})", command.PageCode.ToString("X"));
                             return SCSIStatusCodeName.CheckCondition;
                         }
                 }
@@ -224,7 +224,7 @@ namespace ISCSI.Server
                 return SCSIStatusCodeName.CheckCondition;
             }
 
-            ISCSIServer.Log("[ModeSense6] Page code: 0x{0}, Sub page code: 0x{1}", command.PageCode.ToString("X"), command.SubpageCode.ToString("X"));
+            ISCSIServer.Log(LogLevel.Debug, "[ModeSense6] Page code: 0x{0}, Sub page code: 0x{1}", command.PageCode.ToString("X"), command.SubpageCode.ToString("X"));
             byte[] pageData;
 
             switch ((ModePageCodeName)command.PageCode)
@@ -259,7 +259,7 @@ namespace ISCSI.Server
                         else
                         {
                             response = FormatSenseData(SenseDataParameter.GetIllegalRequestInvalidFieldInCDBSenseData());
-                            ISCSIServer.Log("[ModeSense6] Power condition subpage 0x{0} is not implemented", command.SubpageCode.ToString("x"));
+                            ISCSIServer.Log(LogLevel.Warning, "[ModeSense6] Power condition subpage 0x{0} is not implemented", command.SubpageCode.ToString("x"));
                             return SCSIStatusCodeName.CheckCondition;
                         }
                     }
@@ -290,7 +290,7 @@ namespace ISCSI.Server
                 default:
                     {
                         response = FormatSenseData(SenseDataParameter.GetIllegalRequestInvalidFieldInCDBSenseData());
-                        ISCSIServer.Log("[ModeSense6] ModeSense6 page 0x{0} is not implemented", command.PageCode.ToString("x"));
+                        ISCSIServer.Log(LogLevel.Warning, "[ModeSense6] ModeSense6 page 0x{0} is not implemented", command.PageCode.ToString("x"));
                         return SCSIStatusCodeName.CheckCondition;
                     }
             }
@@ -373,7 +373,7 @@ namespace ISCSI.Server
             }
             catch (ArgumentOutOfRangeException)
             {
-                ISCSIServer.Log("[Read] Read error: LBA out of range");
+                ISCSIServer.Log(LogLevel.Warning, "[Read] Read error: LBA out of range");
                 response = FormatSenseData(SenseDataParameter.GetIllegalRequestLBAOutOfRangeSenseData());
                 return SCSIStatusCodeName.CheckCondition;
             }
@@ -382,13 +382,13 @@ namespace ISCSI.Server
                 int error = Marshal.GetHRForException(ex);
                 if (error == (int)Win32Error.ERROR_CRC)
                 {
-                    ISCSIServer.Log("[Read] Read error: CRC error");
+                    ISCSIServer.Log(LogLevel.Error, "[Read] Read error: CRC error");
                     response = FormatSenseData(SenseDataParameter.GetWriteFaultSenseData());
                     return SCSIStatusCodeName.CheckCondition;
                 }
                 else
                 {
-                    ISCSIServer.Log("[Read] Read error: {0}", ex.ToString());
+                    ISCSIServer.Log(LogLevel.Error, "[Read] Read error: {0}", ex.ToString());
                     response = FormatSenseData(SenseDataParameter.GetMediumErrorUnrecoverableReadErrorSenseData());
                     return SCSIStatusCodeName.CheckCondition;
                 }
@@ -495,13 +495,13 @@ namespace ISCSI.Server
             }
             catch (ArgumentOutOfRangeException)
             {
-                ISCSIServer.Log("[Write] Write error: LBA out of range");
+                ISCSIServer.Log(LogLevel.Warning, "[Write] Write error: LBA out of range");
                 response = FormatSenseData(SenseDataParameter.GetIllegalRequestLBAOutOfRangeSenseData());
                 return SCSIStatusCodeName.CheckCondition;
             }
             catch (IOException ex)
             {
-                ISCSIServer.Log("[Write] Write error: {0}", ex.ToString());
+                ISCSIServer.Log(LogLevel.Error, "[Write] Write error: {0}", ex.ToString());
                 response = FormatSenseData(SenseDataParameter.GetMediumErrorWriteFaultSenseData());
                 return SCSIStatusCodeName.CheckCondition;
             }

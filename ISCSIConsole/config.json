@@ -3,7 +3,7 @@
 
     "Logging": {
         "File": null,
-        "Level": "Warning",
+        "Level": "Information",
         "LogToConsole": true
     },
 

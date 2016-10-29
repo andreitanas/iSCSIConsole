@@ -46,7 +46,7 @@ namespace ISCSIConsole
                         logFile = parameters.ValueOf("log");
                     }
                     m_server = new ISCSIServer(m_targets, port, logFile);
-                    ISCSIServer.Log("Starting Server");
+                    ISCSIServer.Log(LogLevel.Information, "Starting Server");
 
                     try
                     {
