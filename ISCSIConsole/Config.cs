@@ -27,6 +27,7 @@ namespace ISCSIConsole
     public enum DiskKind
     {
         Raw,
+        External,
     }
 
     public class Logging

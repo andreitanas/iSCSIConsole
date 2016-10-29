@@ -10,6 +10,7 @@ using Utilities;
 using Newtonsoft.Json;
 using ISCSI.Server;
 using Newtonsoft.Json.Linq;
+using ISCSIDisk;
 
 namespace ISCSIConsole
 {
@@ -51,12 +52,20 @@ namespace ISCSIConsole
                 foreach (var diskConfig in targetConfig.Disks)
                 {
                     Disk disk;
+                    var parameters = diskConfig.Parameters as JObject;
                     switch (diskConfig.Kind)
                     {
                         case DiskKind.Raw:
-                            Console.WriteLine("  Adding Raw Disk target '{0}'. Filename: '{1}'",
-                                diskConfig.Name, ((JObject)diskConfig.Parameters)["File"].Value<string>());
-                            disk = DiskImage.GetDiskImage(((JObject)diskConfig.Parameters)["File"].Value<string>());
+                            Console.WriteLine("  Adding Raw disk image '{0}'. Filename: '{1}'",
+                                diskConfig.Name, parameters["File"].Value<string>());
+                            disk = DiskImage.GetDiskImage(parameters["File"].Value<string>());
+                            break;
+                        case DiskKind.External:
+                            Console.WriteLine("  Adding External disk '{0}'", diskConfig.Name);
+                            var type = Type.GetType(parameters["Type"].Value<string>());
+                            var extDisk = Activator.CreateInstance(type) as ExternalDisk;
+                            extDisk.SetParameters(parameters);
+                            disk = extDisk;
                             break;
                         default:
                             throw new NotImplementedException();
