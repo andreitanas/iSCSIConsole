@@ -97,7 +97,7 @@ namespace ISCSI.Server
         // This method Accepts new connections
         private void ConnectRequestCallback(Socket clientSocket)
         {
-            Log("[OnConnectRequest] New connection has been accepted");
+            Log(LogLevel.Verbose, "[OnConnectRequest] New connection has been accepted");
 
             StateObject state = new StateObject();
             state.ReceiveBuffer = new byte[StateObject.ReceiveBufferSize];
@@ -115,11 +115,11 @@ namespace ISCSI.Server
             }
             catch (ObjectDisposedException)
             {
-                Log("[OnConnectRequest] BeginReceive ObjectDisposedException");
+                Log(LogLevel.Error, "[OnConnectRequest] BeginReceive ObjectDisposedException");
             }
             catch (SocketException ex)
             {
-                Log("[OnConnectRequest] BeginReceive SocketException: " + ex.Message);
+                Log(LogLevel.Error, "[OnConnectRequest] BeginReceive SocketException: " + ex.Message);
             }
         }
 
@@ -151,7 +151,7 @@ namespace ISCSI.Server
             {
                 // The other side has closed the connection
                 clientSocket.Dispose();
-                Log("[ReceiveCallback] The initiator has closed the connection");
+                Log(LogLevel.Information, "[ReceiveCallback] The initiator has closed the connection");
                 lock (m_activeConnectionsLock)
                 {
                     int connectionIndex = GetStateObjectIndex(m_activeConnections, state.SessionParameters.ISID, state.SessionParameters.TSIH, state.ConnectionParameters.CID);
@@ -196,7 +196,7 @@ namespace ISCSI.Server
                 int pduLength = ISCSIPDU.GetPDULength(state.ConnectionBuffer, bufferOffset);
                 if (pduLength > bytesLeftInBuffer)
                 {
-                    Log("[{0}][ProcessCurrentBuffer] Bytes left in receive buffer: {1}", state.ConnectionIdentifier, bytesLeftInBuffer);
+                    Log(LogLevel.Debug, "[{0}][ProcessCurrentBuffer] Bytes left in receive buffer: {1}", state.ConnectionIdentifier, bytesLeftInBuffer);
                     break;
                 }
                 else
@@ -210,7 +210,7 @@ namespace ISCSI.Server
                     }
                     catch (Exception ex)
                     {
-                        Log("[{0}][ProcessCurrentBuffer] Failed to read PDU (Exception: {1})", state.ConnectionIdentifier, ex.Message);
+                        Log(LogLevel.Error, "[{0}][ProcessCurrentBuffer] Failed to read PDU (Exception: {1})", state.ConnectionIdentifier, ex.Message);
                         RejectPDU reject = new RejectPDU();
                         reject.Reason = RejectReason.InvalidPDUField;
                         reject.Data = ByteReader.ReadBytes(pduBytes, 0, 48);
@@ -222,7 +222,7 @@ namespace ISCSI.Server
                     {
                         if (pdu.GetType() == typeof(ISCSIPDU))
                         {
-                            Log("[{0}][ProcessCurrentBuffer] Unsupported PDU (0x{1})", state.ConnectionIdentifier, pdu.OpCode.ToString("X"));
+                            Log(LogLevel.Warning, "[{0}][ProcessCurrentBuffer] Unsupported PDU (0x{1})", state.ConnectionIdentifier, pdu.OpCode.ToString("X"));
                             // Unsupported PDU
                             RejectPDU reject = new RejectPDU();
                             reject.InitiatorTaskTag = pdu.InitiatorTaskTag;
@@ -241,7 +241,7 @@ namespace ISCSI.Server
                         // Do not continue to process the buffer if the other side closed the connection
                         if (bytesLeftInBuffer > 0)
                         {
-                            Log("[{0}][ProcessCurrentBuffer] Buffer processing aborted, bytes left in receive buffer: {1}", state.ConnectionIdentifier, bytesLeftInBuffer);
+                            Log(LogLevel.Warning, "[{0}][ProcessCurrentBuffer] Buffer processing aborted, bytes left in receive buffer: {1}", state.ConnectionIdentifier, bytesLeftInBuffer);
                         }
                         return;
                     }
@@ -263,7 +263,7 @@ namespace ISCSI.Server
             Socket clientSocket = state.ClientSocket;
             
             uint? cmdSN = PDUHelper.GetCmdSN(pdu);
-            Log("[{0}][ProcessPDU] Received PDU from initiator, Operation: {1}, Size: {2}, CmdSN: {3}", state.ConnectionIdentifier, (ISCSIOpCodeName)pdu.OpCode, pdu.Length, cmdSN);
+            Log(LogLevel.Debug, "[{0}][ProcessPDU] Received PDU from initiator, Operation: {1}, Size: {2}, CmdSN: {3}", state.ConnectionIdentifier, (ISCSIOpCodeName)pdu.OpCode, pdu.Length, cmdSN);
             // RFC 3720: On any connection, the iSCSI initiator MUST send the commands in increasing order of CmdSN,
             // except for commands that are retransmitted due to digest error recovery and connection recovery.
             if (cmdSN.HasValue)
@@ -272,7 +272,7 @@ namespace ISCSI.Server
                 {
                     if (cmdSN != state.SessionParameters.ExpCmdSN)
                     {
-                        Log("[{0}][ProcessPDU] CmdSN outside of expected range", state.ConnectionIdentifier);
+                        Log(LogLevel.Warning, "[{0}][ProcessPDU] CmdSN outside of expected range", state.ConnectionIdentifier);
                         // We ignore this PDU
                         return;
                     }
@@ -295,7 +295,7 @@ namespace ISCSI.Server
             if (pdu is LoginRequestPDU)
             {
                 LoginRequestPDU request = (LoginRequestPDU)pdu;
-                Log("[{0}][ReceiveCallback] Login Request, current stage: {1}, next stage: {2}, parameters: {3}", state.ConnectionIdentifier, request.CurrentStage, request.NextStage, KeyValuePairUtils.ToString(request.LoginParameters));
+                Log(LogLevel.Information, "[{0}][ReceiveCallback] Login Request, current stage: {1}, next stage: {2}, parameters: {3}", state.ConnectionIdentifier, request.CurrentStage, request.NextStage, KeyValuePairUtils.ToString(request.LoginParameters));
                 if (request.TSIH != 0)
                 {
                     // RFC 3720: A Login Request with a non-zero TSIH and a CID equal to that of an existing
@@ -306,7 +306,7 @@ namespace ISCSI.Server
                         if (existingConnectionIndex >= 0)
                         {
                             // Perform implicit logout
-                            Log("[{0}][ProcessPDU] Initiating implicit logout", state.ConnectionIdentifier);
+                            Log(LogLevel.Information, "[{0}][ProcessPDU] Initiating implicit logout", state.ConnectionIdentifier);
                             SocketUtils.ReleaseSocket(m_activeConnections[existingConnectionIndex].ClientSocket);
                             if (m_activeConnections[existingConnectionIndex].Target != null)
                             {
@@ -316,7 +316,7 @@ namespace ISCSI.Server
                                 }
                             }
                             m_activeConnections.RemoveAt(existingConnectionIndex);
-                            Log("[{0}][ProcessPDU] Implicit logout completed", state.ConnectionIdentifier);
+                            Log(LogLevel.Information, "[{0}][ProcessPDU] Implicit logout completed", state.ConnectionIdentifier);
                         }
                     }
                 }
@@ -330,13 +330,13 @@ namespace ISCSI.Server
                         m_activeConnections.Add(state);
                     }
                 }
-                Log("[{0}][ReceiveCallback] Login Response parameters: {1}", state.ConnectionIdentifier, KeyValuePairUtils.ToString(response.LoginParameters));
+                Log(LogLevel.Information, "[{0}][ReceiveCallback] Login Response parameters: {1}", state.ConnectionIdentifier, KeyValuePairUtils.ToString(response.LoginParameters));
                 TrySendPDU(state, response);
             }
             else if (!state.SessionParameters.IsFullFeaturePhase)
             {
                 // Before the Full Feature Phase is established, only Login Request and Login Response PDUs are allowed.
-                Log("[{0}][ProcessPDU] Improper command during login phase, OpCode: 0x{1}", state.ConnectionIdentifier, pdu.OpCode.ToString("x"));
+                Log(LogLevel.Warning, "[{0}][ProcessPDU] Improper command during login phase, OpCode: 0x{1}", state.ConnectionIdentifier, pdu.OpCode.ToString("x"));
                 // A target receiving any PDU except a Login request before the Login phase is started MUST
                 // immediately terminate the connection on which the PDU was received.
                 // Once the Login phase has started, if the target receives any PDU except a Login request,
@@ -377,7 +377,7 @@ namespace ISCSI.Server
                 {
                     // The target MUST ONLY accept text requests with the SendTargets key and a logout
                     // request with the reason "close the session".  All other requests MUST be rejected.
-                    Log("[{0}][ProcessPDU] Improper command during discovery session, OpCode: 0x{1}", state.ConnectionIdentifier, pdu.OpCode.ToString("x"));
+                    Log(LogLevel.Warning, "[{0}][ProcessPDU] Improper command during discovery session, OpCode: 0x{1}", state.ConnectionIdentifier, pdu.OpCode.ToString("x"));
                     RejectPDU reject = new RejectPDU();
                     reject.Reason = RejectReason.ProtocolError;
                     reject.Data = ByteReader.ReadBytes(pdu.GetBytes(), 0, 48);
@@ -398,14 +398,14 @@ namespace ISCSI.Server
                     // FIXME: the iSCSI target layer MUST deliver the commands for execution (to the SCSI execution engin) in the order specified by CmdSN
                     // e.g. read requests should not be executed while previous write request data is being received (via R2T)
                     SCSIDataOutPDU request = (SCSIDataOutPDU)pdu;
-                    ISCSIServer.Log("[{0}][ProcessPDU] SCSIDataOutPDU: Target transfer tag: {1}, LUN: {2}, Buffer offset: {3}, Data segment length: {4}, DataSN: {5}, Final: {6}", state.ConnectionIdentifier, request.TargetTransferTag, (ushort)request.LUN, request.BufferOffset, request.DataSegmentLength, request.DataSN, request.Final);
+                    Log(LogLevel.Warning, "[{0}][ProcessPDU] SCSIDataOutPDU: Target transfer tag: {1}, LUN: {2}, Buffer offset: {3}, Data segment length: {4}, DataSN: {5}, Final: {6}", state.ConnectionIdentifier, request.TargetTransferTag, (ushort)request.LUN, request.BufferOffset, request.DataSegmentLength, request.DataSN, request.Final);
                     ISCSIPDU response = TargetResponseHelper.GetSCSIDataOutResponsePDU(request, state.Target, state.SessionParameters, state.ConnectionParameters);
                     TrySendPDU(state, response);
                 }
                 else if (pdu is SCSICommandPDU)
                 {
                     SCSICommandPDU command = (SCSICommandPDU)pdu;
-                    ISCSIServer.Log("[{0}][ProcessPDU] SCSICommandPDU: CmdSN: {1}, LUN: {2}, Data segment length: {3}, Expected Data Transfer Length: {4}, Final: {5}", state.ConnectionIdentifier, command.CmdSN, (ushort)command.LUN, command.DataSegmentLength, command.ExpectedDataTransferLength, command.Final);
+                    Log(LogLevel.Debug, "[{0}][ProcessPDU] SCSICommandPDU: CmdSN: {1}, LUN: {2}, Data segment length: {3}, Expected Data Transfer Length: {4}, Final: {5}", state.ConnectionIdentifier, command.CmdSN, (ushort)command.LUN, command.DataSegmentLength, command.ExpectedDataTransferLength, command.Final);
                     List<ISCSIPDU> scsiResponseList = TargetResponseHelper.GetSCSIResponsePDU(command, state.Target, state.SessionParameters, state.ConnectionParameters);
                     foreach (ISCSIPDU response in scsiResponseList)
                     {
@@ -418,7 +418,7 @@ namespace ISCSI.Server
                 }
                 else
                 {
-                    Log("[{0}][ProcessPDU] Unsupported command, OpCode: 0x{1}", state.ConnectionIdentifier, pdu.OpCode.ToString("x"));
+                    Log(LogLevel.Warning, "[{0}][ProcessPDU] Unsupported command, OpCode: 0x{1}", state.ConnectionIdentifier, pdu.OpCode.ToString("x"));
                 }
             }
         }
@@ -449,11 +449,11 @@ namespace ISCSI.Server
                     state.ConnectionParameters.StatSN++;
                 }
                 clientSocket.Send(response.GetBytes());
-                Log("[{0}][TrySendPDU] Sent response to initator, Operation: {1}, Size: {2}", state.ConnectionIdentifier, response.OpCode, response.Length);
+                Log(LogLevel.Debug, "[{0}][TrySendPDU] Sent response to initator, Operation: {1}, Size: {2}", state.ConnectionIdentifier, response.OpCode, response.Length);
             }
             catch (SocketException ex)
             {
-                Log("[{0}][TrySendPDU] Failed to send response to initator (Operation: {1}, Size: {2}), SocketException: {3}", state.ConnectionIdentifier, response.OpCode, response.Length, ex.Message);
+                Log(LogLevel.Warning, "[{0}][TrySendPDU] Failed to send response to initator (Operation: {1}, Size: {2}), SocketException: {3}", state.ConnectionIdentifier, response.OpCode, response.Length, ex.Message);
             }
             catch (ObjectDisposedException)
             {
@@ -475,10 +475,14 @@ namespace ISCSI.Server
             return nextTSIH;
         }
 
-        public static void Log(string message)
+        public static void Log(LogLevel level, string message)
         {
+            if (level > ISCSIServer.LogLevel)
+                return;
+
             if (LogToConsole)
                 Console.WriteLine(message);
+
             if (m_logWriter != null)
             {
                 m_logWriter.WriteLine(message);
@@ -499,9 +503,9 @@ namespace ISCSI.Server
             }
         }
 
-        public static void Log(string message, params object[] args)
+        public static void Log(LogLevel level, string message, params object[] args)
         {
-            Log(string.Format(message, args));
+            Log(level, string.Format(message, args));
         }
     }
 
