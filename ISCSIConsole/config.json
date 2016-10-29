@@ -1,0 +1,24 @@
+﻿{
+    "Port": 3260,
+
+    "Logging": {
+        "File": null,
+        "Level": "Warning",
+        "LogToConsole": true
+    },
+
+    "Targets": [
+        {
+            "Name": "iqn.2016.ca.tanas",
+            "Disks": [
+                {
+                    "Name": "rawdisk",
+                    "Kind": "Raw",
+                    "Parameters": {
+                        "File": "./disk.img"
+                    }
+                }
+            ]
+        }
+    ]
+}

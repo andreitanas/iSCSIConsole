@@ -7,18 +7,66 @@ using System.Text;
 using DiskAccessLibrary.LogicalDiskManager;
 using DiskAccessLibrary;
 using Utilities;
+using Newtonsoft.Json;
+using ISCSI.Server;
+using Newtonsoft.Json.Linq;
 
 namespace ISCSIConsole
 {
     partial class Program
     {
         public static bool m_debug = false;
+        public const string CONFIG_FILE = "config.json";
 
         static void Main(string[] args)
         {
-            Console.WriteLine("iSCSI Console v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version);
+            Console.WriteLine("iSCSI Console v" + Assembly.GetEntryAssembly().GetName().Version);
 
+            ReadConfig();
             MainLoop();
+        }
+
+        private static void ReadConfig()
+        {
+            if (!File.Exists(CONFIG_FILE))
+            {
+                Console.WriteLine($"{CONFIG_FILE} not found, starting in interactive mode");
+                return;
+            }
+            
+            var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(CONFIG_FILE));
+
+            if (config.Targets == null || config.Targets.Length == 0)
+            {
+                Console.WriteLine($"No targets configured, starting in interactive mode");
+                return;
+            }
+
+            var targets = new List<ISCSITarget>();
+            foreach (var targetConfig in config.Targets)
+            {
+                var disks = new List<Disk>();
+
+                foreach (var diskConfig in targetConfig.Disks)
+                {
+                    Disk disk;
+                    switch (diskConfig.Kind)
+                    {
+                        case DiskKind.Raw:
+                            disk = DiskImage.GetDiskImage(((JObject)diskConfig.Parameters)["File"].Value<string>());
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    disks.Add(disk);
+                }
+                targets.Add(new ISCSITarget(targetConfig.Name, disks));
+            }
+            m_server = new ISCSIServer(targets, config.Port, config.Logging?.File);
+            ISCSIServer.LogLevel = config.Logging.Level;
+            ISCSIServer.LogToConsole = config.Logging.LogToConsole;
+            m_server.Start();
+            Console.WriteLine("Server started, listening on port {0}", config.Port);
         }
 
         public static void MainLoop()

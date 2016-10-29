@@ -46,15 +46,7 @@ namespace ISCSIConsole
                         logFile = parameters.ValueOf("log");
                     }
                     m_server = new ISCSIServer(m_targets, port, logFile);
-                    try
-                    {
-                        ISCSIServer.Log("Starting Server");
-                    }
-                    catch (IOException)
-                    {
-                        Console.WriteLine("Could not append to log file");
-                        return;
-                    }
+                    ISCSIServer.Log("Starting Server");
 
                     try
                     {

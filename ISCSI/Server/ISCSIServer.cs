@@ -46,28 +46,29 @@ namespace ISCSI.Server
 
         public static object m_logSyncLock = new object();
         private static FileStream m_logFile;
-        
-        public ISCSIServer(List<ISCSITarget> targets) : this(targets, DefaultPort)
-        { }
-
-        public ISCSIServer(List<ISCSITarget> targets, int port) : this(targets, port, String.Empty)
-        { }
+        private static TextWriter m_logWriter;
+        public static LogLevel LogLevel;
+        public static bool LogToConsole;
 
         /// <summary>
         /// Server needs to be started with Start()
         /// </summary>
-        public ISCSIServer(List<ISCSITarget> targets, int port, string logFilePath)
+        public ISCSIServer(List<ISCSITarget> targets, int port = DefaultPort, string logFilePath = null)
         {
             m_port = port;
             m_targets = targets;
 
-            if (logFilePath != String.Empty)
+            if (!string.IsNullOrEmpty(logFilePath))
             {
                 try
                 {
                     // We must avoid using buffered writes, using it will negatively affect the performance and reliability.
                     // Note: once the file system write buffer is filled, Windows may delay any (buffer-dependent) pending write operations, which will create a deadlock.
                     m_logFile = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read, 0x1000, FileOptions.WriteThrough);
+                    m_logWriter = new StreamWriter(m_logFile);
+#if !NETSTANDARD
+                    m_logWriter = TextWriter.Synchronized(m_logWriter);
+#endif
                 }
                 catch
                 {
@@ -131,6 +132,11 @@ namespace ISCSI.Server
             {
                 m_logFile.Close();
                 m_logFile = null;
+            }
+            if (m_logWriter != null)
+            {
+                m_logWriter.Dispose();
+                m_logWriter = null;
             }
 
             GC.Collect();
@@ -471,22 +477,41 @@ namespace ISCSI.Server
 
         public static void Log(string message)
         {
-            Console.WriteLine(message);
-            if (m_logFile != null)
+            if (LogToConsole)
+                Console.WriteLine(message);
+            if (m_logWriter != null)
             {
-                lock (m_logSyncLock)
+                m_logWriter.WriteLine(message);
+                try
                 {
-                    StreamWriter writer = new StreamWriter(m_logFile);
-                    string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ");
-                    writer.WriteLine(timestamp + message);
-                    writer.Flush();
+                    lock (m_logSyncLock)
+                    {
+                        StreamWriter writer = new StreamWriter(m_logFile);
+                        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ");
+                        writer.WriteLine(timestamp + message);
+                        writer.Flush();
+                    }
+                }
+                catch (IOException)
+                {
+                    Console.Error.WriteLine("Could not append to log file");
                 }
             }
         }
 
         public static void Log(string message, params object[] args)
         {
-            Log(String.Format(message, args));
+            Log(string.Format(message, args));
         }
+    }
+
+    public enum LogLevel
+    {
+        None,
+        Error,
+        Warning,
+        Information,
+        Verbose,
+        Debug,
     }
 }

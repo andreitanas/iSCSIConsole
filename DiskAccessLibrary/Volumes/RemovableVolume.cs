@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Utilities;
-using DiskAccessLibrary.FileSystems.NTFS;
 
 namespace DiskAccessLibrary
 {
