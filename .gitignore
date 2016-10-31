@@ -237,3 +237,4 @@ $RECYCLE.BIN/
 /ISCSI/project.lock.json
 /ISCSIConsole/project.lock.json
 /Utilities/project.lock.json
+/.vs

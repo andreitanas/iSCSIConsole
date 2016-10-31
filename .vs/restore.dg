@@ -1,8 +1,0 @@
-#:C:\Projects\Git Repos\iSCSIConsole\ISCSIConsole\ISCSIConsole.xproj
-C:\Projects\Git Repos\iSCSIConsole\ISCSIConsole\ISCSIConsole.xproj|C:\Projects\Git Repos\iSCSIConsole\Utilities\Utilities.xproj
-C:\Projects\Git Repos\iSCSIConsole\ISCSIConsole\ISCSIConsole.xproj|C:\Projects\Git Repos\iSCSIConsole\DiskAccessLibrary\DiskAccessLibrary.xproj
-C:\Projects\Git Repos\iSCSIConsole\ISCSIConsole\ISCSIConsole.xproj|C:\Projects\Git Repos\iSCSIConsole\ISCSI\ISCSI.xproj
-C:\Projects\Git Repos\iSCSIConsole\ISCSIConsole\ISCSIConsole.xproj|C:\Projects\Git Repos\iSCSIConsole\AzureStorage\AzureStorage.xproj
-C:\Projects\Git Repos\iSCSIConsole\DiskAccessLibrary\DiskAccessLibrary.xproj|C:\Projects\Git Repos\iSCSIConsole\Utilities\Utilities.xproj
-C:\Projects\Git Repos\iSCSIConsole\ISCSI\ISCSI.xproj|C:\Projects\Git Repos\iSCSIConsole\DiskAccessLibrary\DiskAccessLibrary.xproj
-C:\Projects\Git Repos\iSCSIConsole\AzureStorage\AzureStorage.xproj|C:\Projects\Git Repos\iSCSIConsole\DiskAccessLibrary\DiskAccessLibrary.xproj
