@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Andre Tanas")]
+[assembly: AssemblyCompany("Andrei Tanas")]
 [assembly: AssemblyProduct("Azure Storage For ISCSIConsole")]
 [assembly: AssemblyTrademark("")]
 
