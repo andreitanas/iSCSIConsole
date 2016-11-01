@@ -29,11 +29,11 @@ namespace ISCSI.Server
         public static int OfferedFirstBurstLength = SessionParameters.DefaultFirstBurstLength;
         public static int OfferedDefaultTime2Wait = 0;
         public static int OfferedDefaultTime2Retain = 20;
-        public static int OfferedMaxOutstandingR2T = 1;
-        public static bool OfferedDataPDUInOrder = true;
-        public static bool OfferedDataSequenceInOrder = true;
+        public static int OfferedMaxOutstandingR2T = 16;
+        public static bool OfferedDataPDUInOrder = false;
+        public static bool OfferedDataSequenceInOrder = false;
         public static int OfferedErrorRecoveryLevel = 0;
-        public static int OfferedMaxConnections = 1;
+        public static int OfferedMaxConnections = 16;
 
         private List<ISCSITarget> m_targets;
         private int m_port;
